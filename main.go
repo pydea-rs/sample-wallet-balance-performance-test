@@ -37,8 +37,8 @@ type GetBalanceResponse struct {
 	Fields  interface{} `json:"fields"`
 }
 
-func GetBalanceRequest(accessToken string, tokenId int8) (*GetBalanceResponse, time.Duration) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:8080/api/user/balance/%d", tokenId), nil)
+func GetBalanceRequest(accessToken string, tokenName string) (*GetBalanceResponse, time.Duration) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:8080/api/user/balance?token=%s", tokenName), nil)
 	if err != nil {
 		log.Printf("Error creating request: %v\n", err)
 		return nil, 0
@@ -155,7 +155,7 @@ func LogPerformanceTest(users []*RegisterResponse, balances []*GetBalanceRespons
 func main() {
 	const (
 		TOTAL_COUNT = 500
-		GAS_ID      = 3
+		GAS_NAME    = "gas"
 	)
 	users, actualDuration, sumDuration := RegisterRandomUsers(TOTAL_COUNT)
 	log.Println(TOTAL_COUNT, "Users registered in ", actualDuration, " And sumDuration = ", sumDuration)
@@ -167,7 +167,7 @@ func main() {
 		for i, user := range users {
 			waiter.Add(1)
 			go func() {
-				resp, duration := GetBalanceRequest(user.Data.AccessToken, GAS_ID)
+				resp, duration := GetBalanceRequest(user.Data.AccessToken, GAS_NAME)
 				sumDuration += duration
 				balances[i] = resp
 				waiter.Done()
